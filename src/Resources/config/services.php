@@ -8,10 +8,11 @@ use Drenso\OidcBundle\Security\OidcAuthenticator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Http\HttpUtils;
+
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return function (ContainerConfigurator $configurator): void {
-  $configurator->services()
+    $configurator->services()
       ->set(DrensoOidcExtension::AUTHENTICATOR_ID, OidcAuthenticator::class)
         ->abstract()
 

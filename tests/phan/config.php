@@ -35,12 +35,12 @@
 
 function rglob($pattern, $flags = 0)
 {
-  $files = glob($pattern, $flags);
-  foreach (glob(dirname($pattern) . '/*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
-    $files = array_merge($files, rglob($dir . '/' . basename($pattern), $flags));
-  }
+    $files = glob($pattern, $flags);
+    foreach (glob(dirname($pattern) . '/*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
+        $files = array_merge($files, rglob($dir . '/' . basename($pattern), $flags));
+    }
 
-  return $files;
+    return $files;
 }
 
 //Disables analysis on the cache, all vendor code, the code for HTMLDiff (non-composer dependency) and all Traits (done via rglob).
@@ -53,7 +53,8 @@ $disabled_analysis = array_merge(
 
 
 return [
-  // If true, missing properties will be created when they are first seen. If false, we'll report an error message.
+  // If true, missing properties will be created when they are first seen.
+  // If false, we'll report an error message.
     "allow_missing_properties"        => false,
 
   // Allow null to be cast as any type and for any type to be cast to null.

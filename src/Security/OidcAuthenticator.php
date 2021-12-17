@@ -23,83 +23,82 @@ use Symfony\Component\Security\Http\HttpUtils;
 
 class OidcAuthenticator implements AuthenticatorInterface, AuthenticationEntryPointInterface
 {
-  public function __construct(
-      private HttpUtils                             $httpUtils,
-      private OidcClientInterface                   $oidcClient,
-      private OidcUserProviderInterface             $oidcUserProvider,
-      private AuthenticationSuccessHandlerInterface $successHandler,
-      private AuthenticationFailureHandlerInterface $failureHandler,
-      private string                                $checkPath,
-      private string                                $loginPath,
-      private string                                $userIdentifierProperty)
-  {
-  }
+    public function __construct(
+        private HttpUtils $httpUtils,
+        private OidcClientInterface $oidcClient,
+        private OidcUserProviderInterface $oidcUserProvider,
+        private AuthenticationSuccessHandlerInterface $successHandler,
+        private AuthenticationFailureHandlerInterface $failureHandler,
+        private string $checkPath,
+        private string $loginPath,
+        private string $userIdentifierProperty
+    ) {
+    }
 
-  public function supports(Request $request): ?bool
-  {
-    return
+    public function supports(Request $request): ?bool
+    {
+        return
         $this->httpUtils->checkRequestPath($request, $this->checkPath)
         && $request->query->has('code')
         && $request->query->has('state');
-  }
-
-  public function start(Request $request, AuthenticationException $authException = NULL): Response
-  {
-    return $this->httpUtils->createRedirectResponse($request, $this->loginPath);
-  }
-
-  public function authenticate(Request $request): Passport
-  {
-    try {
-      // Try to authenticate the request
-      $authData = $this->oidcClient->authenticate($request);
-
-      // Retrieve the user data with the authentication data
-      $userData = $this->oidcClient->retrieveUserInfo($authData);
-
-      // Ensure the user exists
-      $userIdentifier = $userData->getUserDataString($this->userIdentifierProperty);
-      $this->oidcUserProvider->ensureUserExists($userIdentifier, $userData);
-
-      // Create the passport
-      $passport = new SelfValidatingPassport(new UserBadge(
-          $userIdentifier,
-          fn(string $userIdentifier) => $this->oidcUserProvider->loadOidcUser($userIdentifier),
-      ));
-      $passport->setAttribute('auth_data', OidcToken::AUTH_DATA_ATTR);
-      $passport->setAttribute('user_data', OidcToken::USER_DATA_ATTR);
-
-      return $passport;
-    } catch (OidcException $e) {
-      throw new OidcAuthenticationException('OIDC authentication failed', $e);
     }
-  }
 
-  public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-  {
-    return $this->successHandler->onAuthenticationSuccess($request, $token);
-  }
+    public function start(Request $request, AuthenticationException $authException = null): Response
+    {
+        return $this->httpUtils->createRedirectResponse($request, $this->loginPath);
+    }
 
-  public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
-  {
-    return $this->failureHandler->onAuthenticationFailure($request, $exception);
-  }
+    public function authenticate(Request $request): Passport
+    {
+        try {
+          // Try to authenticate the request
+            $authData = $this->oidcClient->authenticate($request);
 
-  public function createToken(Passport $passport, string $firewallName): TokenInterface
-  {
-    return new OidcToken($passport, $firewallName);
-  }
+          // Retrieve the user data with the authentication data
+            $userData = $this->oidcClient->retrieveUserInfo($authData);
+
+          // Ensure the user exists
+            $userIdentifier = $userData->getUserDataString($this->userIdentifierProperty);
+            $this->oidcUserProvider->ensureUserExists($userIdentifier, $userData);
+
+          // Create the passport
+            $passport = new SelfValidatingPassport(new UserBadge(
+                $userIdentifier,
+                fn(string $userIdentifier) => $this->oidcUserProvider->loadOidcUser($userIdentifier),
+            ));
+            $passport->setAttribute('auth_data', OidcToken::AUTH_DATA_ATTR);
+            $passport->setAttribute('user_data', OidcToken::USER_DATA_ATTR);
+
+            return $passport;
+        } catch (OidcException $e) {
+            throw new OidcAuthenticationException('OIDC authentication failed', $e);
+        }
+    }
+
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    {
+        return $this->successHandler->onAuthenticationSuccess($request, $token);
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
+    {
+        return $this->failureHandler->onAuthenticationFailure($request, $exception);
+    }
+
+    public function createToken(Passport $passport, string $firewallName): TokenInterface
+    {
+        return new OidcToken($passport, $firewallName);
+    }
 
   /**
    * @todo: Remove when dropping support for Symfony 5.4
    *
    * @phan-suppress PhanUndeclaredTypeParameter
    */
-  public function createAuthenticatedToken(
-      \Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface $passport,
-      string                                                                    $firewallName): TokenInterface
-  {
-    throw new UnsupportedManagerException();
-  }
-
+    public function createAuthenticatedToken(
+        \Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface $passport,
+        string $firewallName
+    ): TokenInterface {
+        throw new UnsupportedManagerException();
+    }
 }

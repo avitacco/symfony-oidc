@@ -7,11 +7,11 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-  public function getConfigTreeBuilder(): TreeBuilder
-  {
-    $treeBuilder = new TreeBuilder('drenso_oidc');
+    public function getConfigTreeBuilder(): TreeBuilder
+    {
+        $treeBuilder = new TreeBuilder('drenso_oidc');
 
-    $treeBuilder->getRootNode()
+        $treeBuilder->getRootNode()
         ->fixXmlConfig('client')
         ->children()
           ->scalarNode('default_client')
@@ -43,6 +43,6 @@ class Configuration implements ConfigurationInterface
           ->end() // clients
         ->end(); // root children
 
-    return $treeBuilder;
-  }
+        return $treeBuilder;
+    }
 }

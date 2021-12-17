@@ -12,10 +12,10 @@ interface OidcUserProviderInterface extends UserProviderInterface
   /**
    * @throws OidcException Can be thrown when the user cannot be created
    */
-  public function ensureUserExists(string $userIdentifier, OidcUserData $userData);
+    public function ensureUserExists(string $userIdentifier, OidcUserData $userData);
 
   /**
    * Custom user loader method to be able to distinguish oidc authentications
    */
-  public function loadOidcUser(string $userIdentifier): UserInterface;
+    public function loadOidcUser(string $userIdentifier): UserInterface;
 }

@@ -10,3 +10,8 @@ composer.phar
 
 # Vendor
 /vendor
+
+# PHP CS
+/.phpcs-cache
+/phpcs.xml
+
